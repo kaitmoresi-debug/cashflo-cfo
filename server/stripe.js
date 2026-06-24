@@ -18,13 +18,13 @@ router.post('/create-checkout-session', express.json(), authenticate, async (req
 
   try {
     // Get or create stripe customer
-    const users = await query(`SELECT stripe_customer_id FROM users WHERE id = '${userId}'`);
+    const users = await query('SELECT stripe_customer_id FROM users WHERE id = ?', [userId]);
     let customerId = users[0]?.stripe_customer_id;
 
     if (!customerId) {
       const customer = await stripe.customers.create({ email, metadata: { userId } });
       customerId = customer.id;
-      await query(`UPDATE users SET stripe_customer_id = '${customerId}' WHERE id = '${userId}'`);
+      await query('UPDATE users SET stripe_customer_id = ? WHERE id = ?', [customerId, userId]);
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -49,7 +49,7 @@ router.post('/create-checkout-session', express.json(), authenticate, async (req
 // 5. Build subscription status endpoint
 router.get('/subscription', authenticate, async (req, res) => {
   try {
-    const users = await query(`SELECT subscription_status, subscription_plan FROM users WHERE id = '${req.user.userId}'`);
+    const users = await query('SELECT subscription_status, subscription_plan FROM users WHERE id = ?', [req.user.userId]);
     res.json({ 
       status: users[0]?.subscription_status || 'none',
       plan: users[0]?.subscription_plan || 'none'
@@ -82,7 +82,8 @@ router.post('/webhooks', express.raw({type: 'application/json'}), async (req, re
         const planId = subscription.items.data[0].price.id;
         const plan = planId === process.env.STRIPE_PRO_PRICE_ID ? 'pro' : 'starter';
 
-        await query(`UPDATE users SET subscription_status = 'active', subscription_plan = '${plan}', subscription_id = '${subscriptionId}' WHERE stripe_customer_id = '${customerId}'`);
+        await query('UPDATE users SET subscription_status = ?, subscription_plan = ?, subscription_id = ? WHERE stripe_customer_id = ?', 
+          ['active', plan, subscriptionId, customerId]);
         break;
       }
       case 'customer.subscription.updated': {
@@ -92,14 +93,16 @@ router.post('/webhooks', express.raw({type: 'application/json'}), async (req, re
         const planId = subscription.items.data[0].price.id;
         const plan = planId === process.env.STRIPE_PRO_PRICE_ID ? 'pro' : 'starter';
 
-        await query(`UPDATE users SET subscription_status = '${status}', subscription_plan = '${plan}' WHERE stripe_customer_id = '${customerId}'`);
+        await query('UPDATE users SET subscription_status = ?, subscription_plan = ? WHERE stripe_customer_id = ?', 
+          [status, plan, customerId]);
         break;
       }
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
         const customerId = subscription.customer;
 
-        await query(`UPDATE users SET subscription_status = 'canceled', subscription_plan = 'none', subscription_id = NULL WHERE stripe_customer_id = '${customerId}'`);
+        await query('UPDATE users SET subscription_status = ?, subscription_plan = ?, subscription_id = NULL WHERE stripe_customer_id = ?', 
+          ['canceled', 'none', customerId]);
         break;
       }
     }

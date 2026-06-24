@@ -11,13 +11,13 @@ router.post('/signup', async (req, res) => {
     return res.status(400).json({ message: 'Email and password are required' });
   }
   try {
-    const existingUser = await query(`SELECT * FROM users WHERE email = '${email}'`);
+    const existingUser = await query('SELECT * FROM users WHERE email = ?', [email]);
     if (existingUser && existingUser.length > 0) {
       return res.status(400).json({ message: 'User already exists' });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = uuidv4();
-    await query(`INSERT INTO users (id, email, password) VALUES ('${userId}', '${email}', '${hashedPassword}')`);
+    await query('INSERT INTO users (id, email, password) VALUES (?, ?, ?)', [userId, email, hashedPassword]);
     const token = jwt.sign({ userId, email }, process.env.JWT_SECRET, { expiresIn: '24h' });
     res.status(201).json({ token, user: { id: userId, email, subscription_status: 'none', subscription_plan: 'none' } });
   } catch (error) {
@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ message: 'Email and password are required' });
   }
   try {
-    const users = await query(`SELECT * FROM users WHERE email = '${email}'`);
+    const users = await query('SELECT * FROM users WHERE email = ?', [email]);
     const user = users && users.length > 0 ? users[0] : null;
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -69,7 +69,7 @@ const authenticate = (req, res, next) => {
 
 router.get('/me', authenticate, async (req, res) => {
   try {
-    const users = await query(`SELECT id, email, subscription_status, subscription_plan FROM users WHERE id = '${req.user.userId}'`);
+    const users = await query('SELECT id, email, subscription_status, subscription_plan FROM users WHERE id = ?', [req.user.userId]);
     if (!users || users.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }

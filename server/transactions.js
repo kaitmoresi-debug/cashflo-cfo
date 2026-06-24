@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/', authenticate, async (req, res) => {
   try {
-    const transactions = await query(`SELECT * FROM transactions WHERE user_id = '${req.user.userId}' ORDER BY date DESC`);
+    const transactions = await query('SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC', [req.user.userId]);
     res.json(transactions);
   } catch (error) {
     console.error('Fetch transactions error:', error);
@@ -23,7 +23,8 @@ router.post('/', authenticate, async (req, res) => {
 
   try {
     const id = uuidv4();
-    await query(`INSERT INTO transactions (id, user_id, amount, category, date, description) VALUES ('${id}', '${req.user.userId}', ${amount}, '${category}', '${date}', '${description || ''}')`);
+    await query('INSERT INTO transactions (id, user_id, amount, category, date, description) VALUES (?, ?, ?, ?, ?, ?)', 
+      [id, req.user.userId, amount, category, date, description || '']);
     res.status(201).json({ id, amount, category, date, description });
   } catch (error) {
     console.error('Create transaction error:', error);

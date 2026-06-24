@@ -8,7 +8,7 @@ const router = express.Router();
 // Get all predictions for a user
 router.get('/', authenticate, async (req, res) => {
   try {
-    const predictions = await query(`SELECT * FROM predictions WHERE user_id = '${req.user.userId}'`);
+    const predictions = await query('SELECT * FROM predictions WHERE user_id = ?', [req.user.userId]);
     res.json(predictions);
   } catch (error) {
     console.error('Fetch predictions error:', error);
@@ -20,7 +20,7 @@ router.get('/', authenticate, async (req, res) => {
 router.post('/recalculate', authenticate, async (req, res) => {
   const userId = req.user.userId;
   try {
-    const transactions = await query(`SELECT * FROM transactions WHERE user_id = '${userId}'`);
+    const transactions = await query('SELECT * FROM transactions WHERE user_id = ?', [userId]);
     
     // 1. Tax Prediction
     const income = transactions.filter(t => t.amount > 0).reduce((acc, t) => acc + t.amount, 0);
@@ -105,7 +105,7 @@ router.post('/recalculate', authenticate, async (req, res) => {
 // Get pricing suggestions
 router.get('/suggestions', authenticate, async (req, res) => {
   try {
-    const suggestions = await query(`SELECT * FROM pricing_suggestions WHERE user_id = '${req.user.userId}' AND status = 'pending'`);
+    const suggestions = await query('SELECT * FROM pricing_suggestions WHERE user_id = ? AND status = ?', [req.user.userId, 'pending']);
     res.json(suggestions);
   } catch (error) {
     console.error('Fetch suggestions error:', error);
@@ -120,7 +120,7 @@ router.post('/suggestions/:id/status', authenticate, async (req, res) => {
     return res.status(400).json({ message: 'Invalid status' });
   }
   try {
-    await query(`UPDATE pricing_suggestions SET status = '${status}', updated_at = CURRENT_TIMESTAMP WHERE id = '${req.params.id}' AND user_id = '${req.user.userId}'`);
+    await query('UPDATE pricing_suggestions SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?', [status, req.params.id, req.user.userId]);
     res.json({ success: true });
   } catch (error) {
     console.error('Update suggestion status error:', error);
@@ -130,18 +130,18 @@ router.post('/suggestions/:id/status', authenticate, async (req, res) => {
 
 async function updatePrediction(userId, type, value, details) {
   const detailsStr = JSON.stringify(details);
-  const existing = await query(`SELECT id FROM predictions WHERE user_id = '${userId}' AND type = '${type}'`);
+  const existing = await query('SELECT id FROM predictions WHERE user_id = ? AND type = ?', [userId, type]);
   if (existing && existing.length > 0) {
-    await query(`UPDATE predictions SET value = ${value}, details = '${detailsStr.replace(/'/g, "''")}', updated_at = CURRENT_TIMESTAMP WHERE id = '${existing[0].id}'`);
+    await query('UPDATE predictions SET value = ?, details = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [value, detailsStr, existing[0].id]);
   } else {
-    await query(`INSERT INTO predictions (id, user_id, type, value, details) VALUES ('${uuidv4()}', '${userId}', '${type}', ${value}, '${detailsStr.replace(/'/g, "''")}')`);
+    await query('INSERT INTO predictions (id, user_id, type, value, details) VALUES (?, ?, ?, ?, ?)', [uuidv4(), userId, type, value, detailsStr]);
   }
 }
 
 async function createPricingSuggestion(userId, suggestion, impact) {
-  const existing = await query(`SELECT id FROM pricing_suggestions WHERE user_id = '${userId}' AND suggestion = '${suggestion.replace(/'/g, "''")}' AND status = 'pending'`);
+  const existing = await query('SELECT id FROM pricing_suggestions WHERE user_id = ? AND suggestion = ? AND status = ?', [userId, suggestion, 'pending']);
   if (!existing || existing.length === 0) {
-    await query(`INSERT INTO pricing_suggestions (id, user_id, suggestion, impact) VALUES ('${uuidv4()}', '${userId}', '${suggestion.replace(/'/g, "''")}', '${impact.replace(/'/g, "''")}')`);
+    await query('INSERT INTO pricing_suggestions (id, user_id, suggestion, impact) VALUES (?, ?, ?, ?)', [uuidv4(), userId, suggestion, impact]);
   }
 }
 
