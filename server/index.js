@@ -17,6 +17,8 @@ app.use(helmet({
 }));
 app.use(cors());
 app.use(morgan('dev'));
+const stripeRouter = require("./stripe");
+app.use("/api", stripeRouter);
 app.use(express.json());
 
 // API Routes

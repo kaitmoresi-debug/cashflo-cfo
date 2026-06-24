@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
-import { ArrowUpCircle, ArrowDownCircle, Wallet, Clock, ShieldAlert, Check, X, TrendingUp } from 'lucide-react';
+import { ArrowUpCircle, ArrowDownCircle, Wallet, Clock, ShieldAlert, Check, X, TrendingUp, CreditCard } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
   <div style={{ 
@@ -30,9 +31,11 @@ const MetricCard = ({ title, value, icon: Icon, color, subtext }) => (
 );
 
 const DashboardHome = () => {
+  const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [predictions, setPredictions] = useState({});
   const [suggestions, setSuggestions] = useState([]);
+  const [subscription, setSubscription] = useState({ status: 'none', plan: 'none' });
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
@@ -40,10 +43,11 @@ const DashboardHome = () => {
       // Recalculate first to ensure fresh data
       await axios.post('/api/predictions/recalculate');
       
-      const [transRes, predRes, suggRes] = await Promise.all([
+      const [transRes, predRes, suggRes, subRes] = await Promise.all([
         axios.get('/api/transactions'),
         axios.get('/api/predictions'),
-        axios.get('/api/predictions/suggestions')
+        axios.get('/api/predictions/suggestions'),
+        axios.get('/api/subscription')
       ]);
       
       setTransactions(transRes.data);
@@ -54,6 +58,7 @@ const DashboardHome = () => {
       });
       setPredictions(predMap);
       setSuggestions(suggRes.data);
+      setSubscription(subRes.data);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
     } finally {
@@ -74,6 +79,18 @@ const DashboardHome = () => {
     }
   };
 
+  const handleUpgrade = async (tier) => {
+    try {
+      const res = await axios.post('/api/create-checkout-session', { tier });
+      if (res.data.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      alert('Failed to start checkout. Please try again.');
+    }
+  };
+
   if (loading) return <div>Loading dashboard...</div>;
 
   const taxPred = predictions.tax || { value: 0, details: {} };
@@ -86,12 +103,69 @@ const DashboardHome = () => {
       }))
     : [];
 
+  const isPro = subscription.plan === 'pro' && (subscription.status === 'active' || subscription.status === 'trialing');
+  const isStarter = subscription.plan === 'starter' && (subscription.status === 'active' || subscription.status === 'trialing');
+  const isSubscribed = isPro || isStarter;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
-      <div>
-        <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-1)' }}>Dashboard Overview</h2>
-        <p style={{ color: 'var(--color-text-secondary)' }}>AI-powered financial insights for your business.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-1)' }}>Dashboard Overview</h2>
+          <p style={{ color: 'var(--color-text-secondary)' }}>AI-powered financial insights for your business.</p>
+        </div>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 'var(--space-2)', 
+          padding: 'var(--space-2) var(--space-4)', 
+          backgroundColor: isSubscribed ? 'var(--color-success)15' : 'var(--color-warning)15',
+          borderRadius: 'var(--radius-full)',
+          border: `1px solid ${isSubscribed ? 'var(--color-success)30' : 'var(--color-warning)30'}`,
+          fontSize: 'var(--font-size-xs)',
+          fontWeight: 'var(--font-weight-bold)',
+          color: isSubscribed ? 'var(--color-success)' : 'var(--color-warning)'
+        }}>
+          <CreditCard size={14} />
+          {isSubscribed ? (
+            <span>{subscription.plan.toUpperCase()} PLAN - {subscription.status.toUpperCase()}</span>
+          ) : (
+            <span>NO ACTIVE SUBSCRIPTION</span>
+          )}
+        </div>
       </div>
+
+      {/* Subscription Banner for non-subscribed users */}
+      {!isSubscribed && (
+        <div style={{ 
+          backgroundColor: 'var(--color-warning)10', 
+          border: '1px solid var(--color-warning)30', 
+          padding: 'var(--space-4) var(--space-6)', 
+          borderRadius: 'var(--radius-lg)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div>
+            <div style={{ fontWeight: 'var(--font-weight-bold)', color: 'var(--color-warning)' }}>Finish setting up your account</div>
+            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>Subscribe to a plan to unlock all features and start your 14-day free trial.</p>
+          </div>
+          <button 
+            onClick={() => handleUpgrade('starter')}
+            style={{ 
+              backgroundColor: 'var(--color-primary)', 
+              color: 'white', 
+              border: 'none', 
+              padding: 'var(--space-2) var(--space-4)', 
+              borderRadius: 'var(--radius-md)', 
+              fontWeight: 'var(--font-weight-bold)', 
+              cursor: 'pointer' 
+            }}
+          >
+            Choose a Plan
+          </button>
+        </div>
+      )}
 
       {/* Suggestions Section */}
       {suggestions.length > 0 && (

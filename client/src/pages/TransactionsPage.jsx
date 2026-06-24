@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Search, Filter, Download } from 'lucide-react';
+import { Plus, Search, Filter, Download, Lock } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const TransactionsPage = () => {
+  const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
+  const [subscription, setSubscription] = useState({ status: 'none', plan: 'none' });
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -13,19 +16,23 @@ const TransactionsPage = () => {
     description: ''
   });
 
-  const fetchTransactions = async () => {
+  const fetchData = async () => {
     try {
-      const res = await axios.get('/api/transactions');
-      setTransactions(res.data);
+      const [transRes, subRes] = await Promise.all([
+        axios.get('/api/transactions'),
+        axios.get('/api/subscription')
+      ]);
+      setTransactions(transRes.data);
+      setSubscription(subRes.data);
     } catch (err) {
-      console.error('Error fetching transactions:', err);
+      console.error('Error fetching transactions data:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTransactions();
+    fetchData();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -45,18 +52,84 @@ const TransactionsPage = () => {
         date: new Date().toISOString().split('T')[0],
         description: ''
       });
-      fetchTransactions();
+      fetchData();
     } catch (err) {
       console.error('Error adding transaction:', err);
     }
   };
 
+  const handleUpgrade = async () => {
+    try {
+      const res = await axios.post('/api/create-checkout-session', { tier: 'starter' });
+      if (res.data.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      alert('Failed to start checkout. Please try again.');
+    }
+  };
+
   if (loading) return <div>Loading transactions...</div>;
+
+  const isSubscribed = (subscription.status === 'active' || subscription.status === 'trialing');
+
+  if (!isSubscribed) {
+    return (
+      <div style={{ 
+        height: 'calc(100vh - 200px)', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        textAlign: 'center',
+        gap: 'var(--space-6)'
+      }}>
+        <div style={{ backgroundColor: 'var(--color-primary)10', padding: 'var(--space-6)', borderRadius: 'var(--radius-full)' }}>
+          <Lock size={48} color=\"var(--color-primary)\" />
+        </div>
+        <div>
+          <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-2)' }}>Cash Flow Tracking is a Paid Feature</h2>
+          <p style={{ color: 'var(--color-text-secondary)', maxWidth: '500px' }}>
+            Subscribe to the Starter or Pro plan to track your income and expenses, and get real-time financial insights.
+          </p>
+        </div>
+        <button 
+          onClick={handleUpgrade}
+          style={{ 
+            backgroundColor: 'var(--color-primary)', 
+            color: 'white', 
+            border: 'none', 
+            padding: 'var(--space-3) var(--space-8)', 
+            borderRadius: 'var(--radius-md)', 
+            fontWeight: 'var(--font-weight-bold)', 
+            cursor: 'pointer',
+            fontSize: 'var(--font-size-lg)'
+          }}
+        >
+          Get Started — 14-Day Free Trial
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)' }}>Transactions</h2>
+        <div>
+          <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)' }}>Transactions</h2>
+          <div style={{ 
+            display: 'inline-block',
+            marginTop: 'var(--space-1)',
+            padding: 'var(--space-1) var(--space-3)', 
+            backgroundColor: 'var(--color-success)15', 
+            color: 'var(--color-success)',
+            borderRadius: 'var(--radius-full)',
+            fontSize: 'var(--font-size-xs)',
+            fontWeight: 'var(--font-weight-bold)',
+            border: '1px solid var(--color-success)30'
+          }}>{subscription.plan.toUpperCase()} PLAN</div>
+        </div>
         <button 
           onClick={() => setIsModalOpen(true)}
           style={{ 
@@ -154,7 +227,7 @@ const TransactionsPage = () => {
             ))}
             {transactions.length === 0 && (
               <tr>
-                <td colSpan="4" style={{ padding: 'var(--space-12)', textAlign: 'center', color: 'var(--color-text-muted)' }}>No transactions found.</td>
+                <td colSpan=\"4\" style={{ padding: 'var(--space-12)', textAlign: 'center', color: 'var(--color-text-muted)' }}>No transactions found.</td>
               </tr>
             )}
           </tbody>
@@ -187,8 +260,8 @@ const TransactionsPage = () => {
               <div style={{ marginBottom: 'var(--space-4)' }}>
                 <label style={{ display: 'block', marginBottom: 'var(--space-2)', fontSize: 'var(--font-size-sm)' }}>Amount (use negative for expenses)</label>
                 <input 
-                  type="number" 
-                  step="0.01"
+                  type=\"number\" 
+                  step=\"0.01\"
                   value={formData.amount}
                   onChange={(e) => setFormData({...formData, amount: e.target.value})}
                   style={{ width: '100%', padding: 'var(--space-2)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
@@ -212,7 +285,7 @@ const TransactionsPage = () => {
               <div style={{ marginBottom: 'var(--space-4)' }}>
                 <label style={{ display: 'block', marginBottom: 'var(--space-2)', fontSize: 'var(--font-size-sm)' }}>Date</label>
                 <input 
-                  type="date" 
+                  type=\"date\" 
                   value={formData.date}
                   onChange={(e) => setFormData({...formData, date: e.target.value})}
                   style={{ width: '100%', padding: 'var(--space-2)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
@@ -222,7 +295,7 @@ const TransactionsPage = () => {
               <div style={{ marginBottom: 'var(--space-6)' }}>
                 <label style={{ display: 'block', marginBottom: 'var(--space-2)', fontSize: 'var(--font-size-sm)' }}>Description</label>
                 <input 
-                  type="text" 
+                  type=\"text\" 
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                   style={{ width: '100%', padding: 'var(--space-2)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
@@ -230,12 +303,12 @@ const TransactionsPage = () => {
               </div>
               <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'flex-end' }}>
                 <button 
-                  type="button" 
+                  type=\"button\" 
                   onClick={() => setIsModalOpen(false)}
                   style={{ padding: 'var(--space-2) var(--space-4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', backgroundColor: 'transparent', cursor: 'pointer' }}
                 >Cancel</button>
                 <button 
-                  type="submit"
+                  type=\"submit\"
                   style={{ padding: 'var(--space-2) var(--space-4)', borderRadius: 'var(--radius-md)', border: 'none', backgroundColor: 'var(--color-primary)', color: 'white', fontWeight: 'var(--font-weight-bold)', cursor: 'pointer' }}
                 >Save Transaction</button>
               </div>

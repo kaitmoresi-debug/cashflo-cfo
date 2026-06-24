@@ -1,38 +1,112 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Calculator, ShieldCheck, Info, ArrowRight } from 'lucide-react';
+import { Calculator, ShieldCheck, Info, ArrowRight, Lock } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const TaxPage = () => {
+  const { user } = useAuth();
   const [prediction, setPrediction] = useState(null);
+  const [subscription, setSubscription] = useState({ status: 'none', plan: 'none' });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTax = async () => {
-      try {
-        const res = await axios.get('/api/predictions');
-        const tax = res.data.find(p => p.type === 'tax');
-        if (tax) {
-          setPrediction({ ...tax, details: JSON.parse(tax.details) });
-        }
-      } catch (err) {
-        console.error('Error fetching tax data:', err);
-      } finally {
-        setLoading(false);
+  const fetchData = async () => {
+    try {
+      const [predRes, subRes] = await Promise.all([
+        axios.get('/api/predictions'),
+        axios.get('/api/subscription')
+      ]);
+      
+      const tax = predRes.data.find(p => p.type === 'tax');
+      if (tax) {
+        setPrediction({ ...tax, details: JSON.parse(tax.details) });
       }
-    };
-    fetchTax();
+      setSubscription(subRes.data);
+    } catch (err) {
+      console.error('Error fetching tax data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
+  const handleUpgrade = async () => {
+    try {
+      const res = await axios.post('/api/create-checkout-session', { tier: 'starter' });
+      if (res.data.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      alert('Failed to start checkout. Please try again.');
+    }
+  };
+
   if (loading) return <div>Loading tax details...</div>;
+
+  const isSubscribed = (subscription.status === 'active' || subscription.status === 'trialing');
+
+  if (!isSubscribed) {
+    return (
+      <div style={{ 
+        height: 'calc(100vh - 200px)', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        textAlign: 'center',
+        gap: 'var(--space-6)'
+      }}>
+        <div style={{ backgroundColor: 'var(--color-primary)10', padding: 'var(--space-6)', borderRadius: 'var(--radius-full)' }}>
+          <Lock size={48} color=\"var(--color-primary)\" />
+        </div>
+        <div>
+          <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-2)' }}>Tax Predictions are a Paid Feature</h2>
+          <p style={{ color: 'var(--color-text-secondary)', maxWidth: '500px' }}>
+            Subscribe to the Starter or Pro plan to see real-time tax obligation predictions based on your income and expenses.
+          </p>
+        </div>
+        <button 
+          onClick={handleUpgrade}
+          style={{ 
+            backgroundColor: 'var(--color-primary)', 
+            color: 'white', 
+            border: 'none', 
+            padding: 'var(--space-3) var(--space-8)', 
+            borderRadius: 'var(--radius-md)', 
+            fontWeight: 'var(--font-weight-bold)', 
+            cursor: 'pointer',
+            fontSize: 'var(--font-size-lg)'
+          }}
+        >
+          Get Started — 14-Day Free Trial
+        </button>
+      </div>
+    );
+  }
+
   if (!prediction) return <div>No tax data available. Add some transactions first!</div>;
 
   const { details } = prediction;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
-      <div>
-        <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-1)' }}>Tax Obligation Prediction</h2>
-        <p style={{ color: 'var(--color-text-secondary)' }}>Estimated obligations for the current tax year.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-1)' }}>Tax Obligation Prediction</h2>
+          <p style={{ color: 'var(--color-text-secondary)' }}>Estimated obligations for the current tax year.</p>
+        </div>
+        <div style={{ 
+          padding: 'var(--space-1) var(--space-3)', 
+          backgroundColor: 'var(--color-success)15', 
+          color: 'var(--color-success)',
+          borderRadius: 'var(--radius-full)',
+          fontSize: 'var(--font-size-xs)',
+          fontWeight: 'var(--font-weight-bold)',
+          border: '1px solid var(--color-success)30'
+        }}>{subscription.plan.toUpperCase()} PLAN</div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-8)' }}>
@@ -45,7 +119,7 @@ const TaxPage = () => {
           boxShadow: 'var(--shadow-md)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-6)' }}>
-            <Calculator size={28} color="var(--color-secondary)" />
+            <Calculator size={28} color=\"var(--color-secondary)\" />
             <h3 style={{ fontSize: 'var(--font-size-xl)' }}>Estimated Total Tax</h3>
           </div>
           
@@ -128,7 +202,7 @@ const TaxPage = () => {
         gap: 'var(--space-4)',
         alignItems: 'flex-start'
       }}>
-        <Info size={24} color="var(--color-info)" style={{ flexShrink: 0 }} />
+        <Info size={24} color=\"var(--color-info)\" style={{ flexShrink: 0 }} />
         <div>
           <h4 style={{ marginBottom: 'var(--space-2)' }}>How we calculate your taxes</h4>
           <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', lineHeight: 'var(--line-height-relaxed)' }}>

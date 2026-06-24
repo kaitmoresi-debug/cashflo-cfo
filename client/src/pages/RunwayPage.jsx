@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Clock, TrendingUp, TrendingDown, RefreshCcw } from 'lucide-react';
+import { Clock, TrendingUp, TrendingDown, RefreshCcw, Lock } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const RunwayPage = () => {
+  const { user } = useAuth();
   const [prediction, setPrediction] = useState(null);
+  const [subscription, setSubscription] = useState({ status: 'none', plan: 'none' });
   const [loading, setLoading] = useState(true);
   const [scenarios, setScenarios] = useState({
     revenueChange: 0, // e.g. -20 for 20% drop
     expenseChange: 0  // e.g. 10 for 10% increase
   });
 
-  const fetchRunway = async () => {
+  const fetchData = async () => {
     try {
-      const res = await axios.get('/api/predictions');
-      const runway = res.data.find(p => p.type === 'runway');
+      const [predRes, subRes] = await Promise.all([
+        axios.get('/api/predictions'),
+        axios.get('/api/subscription')
+      ]);
+      
+      const runway = predRes.data.find(p => p.type === 'runway');
       if (runway) {
         setPrediction({ ...runway, details: JSON.parse(runway.details) });
       }
+      setSubscription(subRes.data);
     } catch (err) {
       console.error('Error fetching runway data:', err);
     } finally {
@@ -25,10 +33,64 @@ const RunwayPage = () => {
   };
 
   useEffect(() => {
-    fetchRunway();
+    fetchData();
   }, []);
 
+  const handleUpgrade = async () => {
+    try {
+      const res = await axios.post('/api/create-checkout-session', { tier: 'pro' });
+      if (res.data.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (error) {
+      console.error('Upgrade error:', error);
+      alert('Failed to start checkout. Please try again.');
+    }
+  };
+
   if (loading) return <div>Loading runway forecasting...</div>;
+
+  const isPro = subscription.plan === 'pro' && (subscription.status === 'active' || subscription.status === 'trialing');
+
+  if (!isPro) {
+    return (
+      <div style={{ 
+        height: 'calc(100vh - 200px)', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        textAlign: 'center',
+        gap: 'var(--space-6)'
+      }}>
+        <div style={{ backgroundColor: 'var(--color-primary)10', padding: 'var(--space-6)', borderRadius: 'var(--radius-full)' }}>
+          <Lock size={48} color=\"var(--color-primary)\" />
+        </div>
+        <div>
+          <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-2)' }}>Runway Forecasting is a Pro Feature</h2>
+          <p style={{ color: 'var(--color-text-secondary)', maxWidth: '500px' }}>
+            Upgrade to the Pro plan to unlock runway forecasting, pricing suggestions, and interactive scenario planning.
+          </p>
+        </div>
+        <button 
+          onClick={handleUpgrade}
+          style={{ 
+            backgroundColor: 'var(--color-primary)', 
+            color: 'white', 
+            border: 'none', 
+            padding: 'var(--space-3) var(--space-8)', 
+            borderRadius: 'var(--radius-md)', 
+            fontWeight: 'var(--font-weight-bold)', 
+            cursor: 'pointer',
+            fontSize: 'var(--font-size-lg)'
+          }}
+        >
+          Upgrade to Pro — 14-Day Free Trial
+        </button>
+      </div>
+    );
+  }
+
   if (!prediction) return <div>No runway data available. Add some transactions first!</div>;
 
   const { details } = prediction;
@@ -49,9 +111,19 @@ const RunwayPage = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
-      <div>
-        <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-1)' }}>Runway Forecasting</h2>
-        <p style={{ color: 'var(--color-text-secondary)' }}>Predict how long your business can operate at current levels.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-1)' }}>Runway Forecasting</h2>
+          <p style={{ color: 'var(--color-text-secondary)' }}>Predict how long your business can operate at current levels.</p>
+        </div>
+        <div style={{ 
+          padding: 'var(--space-1) var(--space-3)', 
+          backgroundColor: 'var(--color-accent)', 
+          color: 'var(--color-primary)',
+          borderRadius: 'var(--radius-full)',
+          fontSize: 'var(--font-size-xs)',
+          fontWeight: 'var(--font-weight-bold)'
+        }}>PRO PLAN</div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-8)' }}>
@@ -118,8 +190,8 @@ const RunwayPage = () => {
                 Revenue Change: {scenarios.revenueChange}%
               </label>
               <input 
-                type="range" 
-                min="-50" max="50" step="5"
+                type=\"range\" 
+                min=\"-50\" max=\"50\" step=\"5\"
                 value={scenarios.revenueChange}
                 onChange={(e) => setScenarios({...scenarios, revenueChange: parseInt(e.target.value)})}
                 style={{ width: '100%' }}
@@ -135,8 +207,8 @@ const RunwayPage = () => {
                 Expense Change: {scenarios.expenseChange}%
               </label>
               <input 
-                type="range" 
-                min="-50" max="50" step="5"
+                type=\"range\" 
+                min=\"-50\" max=\"50\" step=\"5\"
                 value={scenarios.expenseChange}
                 onChange={(e) => setScenarios({...scenarios, expenseChange: parseInt(e.target.value)})}
                 style={{ width: '100%' }}
