@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" fill="none">
+  <defs>
+    <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+    <linearGradient id="markGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Logo Mark: stylized "C" that looks like a chart trending upward -->
+  <g transform="translate(10, 10)">
+    <!-- Background circle for depth -->
+    <circle cx="35" cy="35" r="34" fill="#F1F5F9"/>
+    
+    <!-- The "C" + chart mark -->
+    <path d="M22 48 C22 48, 20 20, 35 15 C42 12, 50 15, 50 15"
+          stroke="url(#markGrad)" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+    
+    <!-- Upward arrow integrated into the C -->
+    <path d="M35 15 L45 8 L48 12"
+          stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Small accent dot -->
+    <circle cx="48" cy="12" r="2.5" fill="#14B8A6"/>
+  </g>
+
+  <!-- Company Name -->
+  <text x="90" y="52" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="26" font-weight="700" fill="#0F172A" letter-spacing="-0.5">
+    Cashflow
+  </text>
+  <text x="90" y="80" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="18" font-weight="500" fill="#0D9488" letter-spacing="2.5">
+    CFO
+  </text>
+
+  <!-- Tagline -->
+  <text x="90" y="102" font-family="'Inter', 'Segoe UI', system-ui, sans-serif" font-size="9" font-weight="400" fill="#64748B" letter-spacing="1.2">
+    Your AI Financial Co-Pilot
+  </text>
+</svg>
