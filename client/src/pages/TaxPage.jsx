@@ -60,7 +60,7 @@ const TaxPage = () => {
         gap: 'var(--space-6)'
       }}>
         <div style={{ backgroundColor: 'var(--color-primary)10', padding: 'var(--space-6)', borderRadius: 'var(--radius-full)' }}>
-          <Lock size={48} color=\"var(--color-primary)\" />
+          <Lock size={48} color="var(--color-primary)" />
         </div>
         <div>
           <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-2)' }}>Tax Predictions are a Paid Feature</h2>
@@ -119,7 +119,7 @@ const TaxPage = () => {
           boxShadow: 'var(--shadow-md)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-6)' }}>
-            <Calculator size={28} color=\"var(--color-secondary)\" />
+            <Calculator size={28} color="var(--color-secondary)" />
             <h3 style={{ fontSize: 'var(--font-size-xl)' }}>Estimated Total Tax</h3>
           </div>
           
@@ -202,7 +202,7 @@ const TaxPage = () => {
         gap: 'var(--space-4)',
         alignItems: 'flex-start'
       }}>
-        <Info size={24} color=\"var(--color-info)\" style={{ flexShrink: 0 }} />
+        <Info size={24} color="var(--color-info)" style={{ flexShrink: 0 }} />
         <div>
           <h4 style={{ marginBottom: 'var(--space-2)' }}>How we calculate your taxes</h4>
           <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', lineHeight: 'var(--line-height-relaxed)' }}>

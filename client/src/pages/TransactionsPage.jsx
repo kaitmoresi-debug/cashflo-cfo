@@ -86,7 +86,7 @@ const TransactionsPage = () => {
         gap: 'var(--space-6)'
       }}>
         <div style={{ backgroundColor: 'var(--color-primary)10', padding: 'var(--space-6)', borderRadius: 'var(--radius-full)' }}>
-          <Lock size={48} color=\"var(--color-primary)\" />
+          <Lock size={48} color="var(--color-primary)" />
         </div>
         <div>
           <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-2)' }}>Cash Flow Tracking is a Paid Feature</h2>
@@ -227,7 +227,7 @@ const TransactionsPage = () => {
             ))}
             {transactions.length === 0 && (
               <tr>
-                <td colSpan=\"4\" style={{ padding: 'var(--space-12)', textAlign: 'center', color: 'var(--color-text-muted)' }}>No transactions found.</td>
+                <td colSpan="4" style={{ padding: 'var(--space-12)', textAlign: 'center', color: 'var(--color-text-muted)' }}>No transactions found.</td>
               </tr>
             )}
           </tbody>
@@ -260,8 +260,8 @@ const TransactionsPage = () => {
               <div style={{ marginBottom: 'var(--space-4)' }}>
                 <label style={{ display: 'block', marginBottom: 'var(--space-2)', fontSize: 'var(--font-size-sm)' }}>Amount (use negative for expenses)</label>
                 <input 
-                  type=\"number\" 
-                  step=\"0.01\"
+                  type="number" 
+                  step="0.01"
                   value={formData.amount}
                   onChange={(e) => setFormData({...formData, amount: e.target.value})}
                   style={{ width: '100%', padding: 'var(--space-2)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
@@ -285,7 +285,7 @@ const TransactionsPage = () => {
               <div style={{ marginBottom: 'var(--space-4)' }}>
                 <label style={{ display: 'block', marginBottom: 'var(--space-2)', fontSize: 'var(--font-size-sm)' }}>Date</label>
                 <input 
-                  type=\"date\" 
+                  type="date" 
                   value={formData.date}
                   onChange={(e) => setFormData({...formData, date: e.target.value})}
                   style={{ width: '100%', padding: 'var(--space-2)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
@@ -295,7 +295,7 @@ const TransactionsPage = () => {
               <div style={{ marginBottom: 'var(--space-6)' }}>
                 <label style={{ display: 'block', marginBottom: 'var(--space-2)', fontSize: 'var(--font-size-sm)' }}>Description</label>
                 <input 
-                  type=\"text\" 
+                  type="text" 
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                   style={{ width: '100%', padding: 'var(--space-2)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)' }}
@@ -303,12 +303,12 @@ const TransactionsPage = () => {
               </div>
               <div style={{ display: 'flex', gap: 'var(--space-4)', justifyContent: 'flex-end' }}>
                 <button 
-                  type=\"button\" 
+                  type="button" 
                   onClick={() => setIsModalOpen(false)}
                   style={{ padding: 'var(--space-2) var(--space-4)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', backgroundColor: 'transparent', cursor: 'pointer' }}
                 >Cancel</button>
                 <button 
-                  type=\"submit\"
+                  type="submit"
                   style={{ padding: 'var(--space-2) var(--space-4)', borderRadius: 'var(--radius-md)', border: 'none', backgroundColor: 'var(--color-primary)', color: 'white', fontWeight: 'var(--font-weight-bold)', cursor: 'pointer' }}
                 >Save Transaction</button>
               </div>

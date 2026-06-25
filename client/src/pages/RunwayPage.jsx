@@ -64,7 +64,7 @@ const RunwayPage = () => {
         gap: 'var(--space-6)'
       }}>
         <div style={{ backgroundColor: 'var(--color-primary)10', padding: 'var(--space-6)', borderRadius: 'var(--radius-full)' }}>
-          <Lock size={48} color=\"var(--color-primary)\" />
+          <Lock size={48} color="var(--color-primary)" />
         </div>
         <div>
           <h2 style={{ fontSize: 'var(--font-size-2xl)', color: 'var(--color-primary)', marginBottom: 'var(--space-2)' }}>Runway Forecasting is a Pro Feature</h2>
@@ -190,8 +190,8 @@ const RunwayPage = () => {
                 Revenue Change: {scenarios.revenueChange}%
               </label>
               <input 
-                type=\"range\" 
-                min=\"-50\" max=\"50\" step=\"5\"
+                type="range" 
+                min="-50" max="50" step="5"
                 value={scenarios.revenueChange}
                 onChange={(e) => setScenarios({...scenarios, revenueChange: parseInt(e.target.value)})}
                 style={{ width: '100%' }}
@@ -207,8 +207,8 @@ const RunwayPage = () => {
                 Expense Change: {scenarios.expenseChange}%
               </label>
               <input 
-                type=\"range\" 
-                min=\"-50\" max=\"50\" step=\"5\"
+                type="range" 
+                min="-50" max="50" step="5"
                 value={scenarios.expenseChange}
                 onChange={(e) => setScenarios({...scenarios, expenseChange: parseInt(e.target.value)})}
                 style={{ width: '100%' }}

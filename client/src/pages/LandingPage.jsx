@@ -85,17 +85,17 @@ const LandingPage = () => {
           <h2 style={{ textAlign: 'center', marginBottom: 'var(--space-12)', fontSize: 'var(--font-size-2xl)' }}>Everything you need to stay in the green</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-8)' }}>
             <div style={{ padding: 'var(--space-8)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-background)' }}>
-              <BarChart3 size={40} color=\"var(--color-secondary)\" style={{ marginBottom: 'var(--space-4)' }} />
+              <BarChart3 size={40} color="var(--color-secondary)" style={{ marginBottom: 'var(--space-4)' }} />
               <h3 style={{ marginBottom: 'var(--space-2)' }}>Cash Flow Tracking</h3>
               <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>Automatically track every dollar in and out with real-time dashboards.</p>
             </div>
             <div style={{ padding: 'var(--space-8)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-background)' }}>
-              <Calculator size={40} color=\"var(--color-secondary)\" style={{ marginBottom: 'var(--space-4)' }} />
+              <Calculator size={40} color="var(--color-secondary)" style={{ marginBottom: 'var(--space-4)' }} />
               <h3 style={{ marginBottom: 'var(--space-2)' }}>Tax Predictions</h3>
               <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>Never be surprised by a tax bill. We calculate your obligations as you earn.</p>
             </div>
             <div style={{ padding: 'var(--space-8)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-background)' }}>
-              <Rocket size={40} color=\"var(--color-secondary)\" style={{ marginBottom: 'var(--space-4)' }} />
+              <Rocket size={40} color="var(--color-secondary)" style={{ marginBottom: 'var(--space-4)' }} />
               <h3 style={{ marginBottom: 'var(--space-2)' }}>Runway Forecasting</h3>
               <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>Know exactly how much time you have left based on your spending trends.</p>
             </div>
@@ -104,7 +104,7 @@ const LandingPage = () => {
       </section>
 
       {/* Pricing Section */}
-      <section id=\"pricing\" style={{ padding: 'var(--space-20) var(--space-8)' }}>
+      <section id="pricing" style={{ padding: 'var(--space-20) var(--space-8)' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <h2 style={{ textAlign: 'center', marginBottom: 'var(--space-4)', fontSize: 'var(--font-size-3xl)' }}>Simple, Transparent Pricing</h2>
           <p style={{ textAlign: 'center', marginBottom: 'var(--space-12)', color: 'var(--color-text-secondary)' }}>All plans include a 14-day free trial. No credit card required to start.</p>
@@ -125,9 +125,9 @@ const LandingPage = () => {
                 $19<span style={{ fontSize: 'var(--font-size-base)', fontWeight: 'var(--font-weight-normal)', color: 'var(--color-text-secondary)' }}>/mo</span>
               </div>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: 'var(--space-10)', flex: 1 }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color=\"var(--color-success)\" /> Cash flow tracking</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color=\"var(--color-success)\" /> Tax obligation predictions</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color=\"var(--color-success)\" /> Quarterly tax schedule</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color="var(--color-success)" /> Cash flow tracking</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color="var(--color-success)" /> Tax obligation predictions</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color="var(--color-success)" /> Quarterly tax schedule</li>
               </ul>
               <button 
                 onClick={() => handleChoosePlan('starter')}
@@ -177,10 +177,10 @@ const LandingPage = () => {
                 $49<span style={{ fontSize: 'var(--font-size-base)', fontWeight: 'var(--font-weight-normal)', color: 'rgba(255,255,255,0.7)' }}>/mo</span>
               </div>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: 'var(--space-10)', flex: 1 }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color=\"var(--color-accent)\" /> Everything in Starter</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color=\"var(--color-accent)\" /> Pricing suggestions</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color=\"var(--color-accent)\" /> Runway forecasting</li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color=\"var(--color-accent)\" /> Bank account connection</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color="var(--color-accent)" /> Everything in Starter</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color="var(--color-accent)" /> Pricing suggestions</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color="var(--color-accent)" /> Runway forecasting</li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-4)' }}><CheckCircle size={20} color="var(--color-accent)" /> Bank account connection</li>
               </ul>
               <button 
                 onClick={() => handleChoosePlan('pro')}
